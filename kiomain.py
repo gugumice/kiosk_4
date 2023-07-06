@@ -29,7 +29,7 @@ def make_URL(bar_code,lang):
     Accepts: request barcode, language
     Returns url for HTTP request
     '''
-    
+
     #Remove bc type prefix if present
     if not bar_code[0].isnumeric():
         bar_code=bar_code[1:]
@@ -38,7 +38,7 @@ def make_URL(bar_code,lang):
         req_code = req_code.group(0)
         req_code = req_code.replace('#','%23')
         return(config['url'].format(config['host'],req_code,lang))
-    
+
     return(None)
 
 def bcr_callback(**kargv):
@@ -61,37 +61,38 @@ def bcr_callback(**kargv):
             fade_in_time=config['led_fade_in'],fade_out_time=config['led_fade_out'])   
         #Flush buffer
         kiosk_bcr.next()
-        
+
     report_URL = make_URL(kargv['barcode'],lang)
 
     if report_URL is None:
-        kiosk_leds.pulse()
-        kioutils.speak_status('{}/error-attn.wav'.format(app_dir),background=False)
-        kioutils.speak_status('{}/barcode_invalid{}.wav'.format(app_dir,lang))
-        logging.error('{} - invalid barcode'.format(kargv['barcode']))
         if config['button_panel']:
+            kiosk_leds.pulse()
+            kioutils.speak_status('{}/error-attn.wav'.format(app_dir),background=False)
+            kioutils.speak_status('{}/barcode_invalid{}.wav'.format(app_dir,lang))
             kiosk_buttons.beep(n=1,background=True)
-        reset_button_panel()
+            reset_button_panel()
+        logging.error('{} - invalid barcode'.format(kargv['barcode']))
         return
-    
+
     report_status,report_file = kioreport.get_report(report_URL,config['httpreq_timeout'])
     #Request valid but testing not finished
     if report_status == 404:
-        kiosk_leds.pulse()
-        kioutils.speak_status('{}/attn.wav'.format(app_dir),background=False)
-        kioutils.speak_status('{}/not_ready{}.wav'.format(app_dir,lang))
-        logging.info('{} - Testing not finished'.format(kargv['barcode']))
         if config['button_panel']:
+            kiosk_leds.pulse()
+            kioutils.speak_status('{}/attn.wav'.format(app_dir),background=False)
+            kioutils.speak_status('{}/not_ready{}.wav'.format(app_dir,lang))
             kiosk_buttons.beep(n=1,background=True)
-        reset_button_panel()
+            reset_button_panel()
+        logging.info('{} - Testing not finished'.format(kargv['barcode']))
         return
 
     #print(report_status,report_file,config['httpreq_timeout'])
     #Everything ok - go on with peinting
     if report_status == 200 and report_file is not None:
-        kiosk_leds.pulse()
-        kioutils.speak_status('{}/attn.wav'.format(app_dir),background=False)
-        kioutils.speak_status('{}/start_print{}.wav'.format(app_dir,lang))
+        if config['button_panel']:
+            kiosk_leds.pulse()
+            kioutils.speak_status('{}/attn.wav'.format(app_dir),background=False)
+            kioutils.speak_status('{}/start_print{}.wav'.format(app_dir,lang))
         #Cancel all pending jobs if present for privacy 
         try:
             kiosk_printer.cancelAllJobs(kiosk_printer.name)
@@ -105,10 +106,10 @@ def bcr_callback(**kargv):
             logging.error(e)
         logging.info('{} - Report sent to printer, {}'.format(kargv['barcode'],lang))
         time.sleep(config['report_delay'])
-        kioutils.speak_status('{}/end_print{}.wav'.format(app_dir,lang))
         if config['button_panel']:
+            kioutils.speak_status('{}/end_print{}.wav'.format(app_dir,lang))
             kiosk_buttons.beep(n=1,background=True)
-        reset_button_panel()
+            reset_button_panel()
 
     #Remove temporary PDF
     try:
