@@ -13,5 +13,4 @@ echo $CURRENT_HOSTNAME
 echo $NEW_HOSTNAME
 sleep 1
 hostnamectl set-hostname ${NEW_HOSTNAME} --static
-echo "01 10 * * * sudo shutdown -r" >>  /var/spool/cron/crontabs/root
 /sbin/shutdown -r now

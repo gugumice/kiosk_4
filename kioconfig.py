@@ -33,7 +33,7 @@ def read_config(filename):
         'url_test' : 'http://10.100.50.102/sarmite/m5menu.csp',
         'printers':  {"HP": "HP LaserJet Series PCL 6 CUPS"},
         'button_printer_reset' : [1],
-        'wd' : None
+        'wd' : '/dev/watchdog'
     }
     if not os.path.isfile(filename):
         logging.critical("Config file {} does not exist!".format(filename))
