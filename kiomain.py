@@ -1,20 +1,21 @@
 #!/usr/bin/env python3
 
 import argparse
-import logging
-import os, sys, re
-import time
 import json
-import kioconfig
+import logging
+import os
+import re
+import sys
+import time
 
-from kiobcr import Barcodereader
-import kioutils
+import kioconfig
 import kiogpio
 import kioprint
 import kioreport
+import kioutils
+from kiobcr import Barcodereader
 
 # Global vars & constants
-
 wdObj = None
 config = {}
 kiosk_bcr = None
@@ -61,7 +62,6 @@ def bcr_callback(**kargv):
             fade_in_time=config['led_fade_in'],fade_out_time=config['led_fade_out'])   
         #Flush buffer
         kiosk_bcr.next()
-
     report_URL = make_URL(kargv['barcode'],lang)
 
     if report_URL is None:
@@ -130,16 +130,6 @@ def kio_init():
     global kiosk_printer
     global app_dir
 
-    # Init Watchdog
-    if config["watchdog_device"] is not None:
-        try:
-            wdObj = open(config["watchdog_device"], "w")
-            logging.info("Watchdog enabled on {}".format(config["watchdog_device"]))
-        except Exception as e:
-            logging.error(e)
-    else:
-        logging.info("Watchdog disabled")
-
     kiosk_leds = kiogpio.kioskPWMLeds(pins=config["led_pins"])
     kiosk_buttons = kiogpio.kioskButtons(
         pins=config["button_pins"],
@@ -162,7 +152,6 @@ def kio_init():
         "BCR on {} timeout {}".format(config["bc_reader_port"], config["bc_timeout"])
     )
     # ___BCR END ________
-
     # Init printer
     kiosk_leds.pulse([1], fade_in_time=0.1, fade_out_time=0.1, n=None)
     # Beep & delay to allow doing reset
@@ -195,6 +184,16 @@ def kio_init():
     kiosk_leds.off(leds=[0])
     kioutils.speak_status('{}/ready_{}.wav'.format(app_dir,config['languages'][config['default_button']]))
 
+    # Init Watchdog
+    if config["watchdog_device"] is not None:
+        try:
+            wdObj = open(config["watchdog_device"], "w")
+            logging.info("Watchdog enabled on {}".format(config["watchdog_device"]))
+        except Exception as e:
+            logging.error(e)
+    else:
+        logging.info("Watchdog disabled")
+
 def kio_run():
     """
     Run kiosk
@@ -207,7 +206,6 @@ def kio_run():
     global kiosk_printer
     global app_dir
     global lang
-    
     
     lang = config['languages'][config['default_button']]
     kiosk_leds.activeButton = config['default_button']
