@@ -8,7 +8,7 @@ systemctl disable firstboot.service
 raspi-config --expand-rootfs > /dev/null
 CURRENT_HOSTNAME=$(cat /proc/sys/kernel/hostname)
 IPO=$(ip -o -4 addr list eth0 | awk '{print $4}' | cut -d/ -f1 |  cut -d. -f2);
-NEW_HOSTNAME="rpi-kio-"$IPO
+NEW_HOSTNAME="rpi-kio4-"$IPO
 echo $CURRENT_HOSTNAME
 echo $NEW_HOSTNAME
 sleep 1
