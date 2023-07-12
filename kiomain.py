@@ -55,13 +55,13 @@ def bcr_callback(**kargv):
     global kiosk_leds
     global kiosk_buttons
     global kiosk_bcr
-    active_button = kiosk_buttons.activeButton
+ 
     def reset_button_panel():
         kiosk_leds.off()
         kiosk_leds.blink(leds=[active_button],n=None,on_time=config['led_on_time'],off_time=config['led_off_time'],
             fade_in_time=config['led_fade_in'],fade_out_time=config['led_fade_out'])   
-        #Flush buffer
-        kiosk_bcr.next()
+    active_button = kiosk_buttons.activeButton
+    #Prevent repeated scans 
     report_URL = make_URL(kargv['barcode'],lang)
 
     if report_URL is None:
@@ -100,11 +100,14 @@ def bcr_callback(**kargv):
             logging.error(e)
         job_id = None
         try:
+            #print('Printing....')
             job_id = kiosk_printer.printFile(printer=kiosk_printer.name,filename = report_file,title = 'Report',options ={'print-color-mode': 'monochrome'})
             logging.info('Report: {}, jobID: {}, lang: {}, http resp.: {}, sent to {}'.format(kargv['barcode'],job_id,lang, report_status, kiosk_printer.name))
         except Exception as e:
             logging.error(e)
         logging.info('{} - Report sent to printer, {}'.format(kargv['barcode'],lang))
+
+        #Blink lights when printing
         time.sleep(config['report_delay'])
         if config['button_panel']:
             kioutils.speak_status('{}/end_print{}.wav'.format(app_dir,lang))
@@ -142,7 +145,7 @@ def kio_init():
     # ____Init barcode scanner, keep on until success_____
     kiosk_leds.pulse([2], fade_in_time=0.1, fade_out_time=0.1, n=None)
     kiosk_bcr = Barcodereader(
-        port=config["bc_reader_port"], timeout=config["bc_timeout"], callback_fn = bcr_callback
+        port=config["bc_reader_port"], timeout=config["bc_timeout"], callback_fn = bcr_callback, f = config['report_delay']/2
     )
     while not kiosk_bcr.running:
         kiosk_bcr.start()
@@ -209,8 +212,6 @@ def kio_run():
     
     lang = config['languages'][config['default_button']]
     kiosk_leds.activeButton = config['default_button']
-    #flush bcr buffer
-    kiosk_bcr.next()
     #
     if config['button_panel']:
         kiosk_leds.blink(leds=[kiosk_leds.activeButton],n=None,on_time=config['led_on_time'],off_time=config['led_off_time'],
@@ -231,6 +232,7 @@ def kio_run():
             lang=config['languages'][kiosk_buttons.activeButton]
             kioutils.speak_status('{}/lang_{}.wav'.format(app_dir,lang.upper()))
             logging.debug('{} selected'.format(lang))
+        #Read scanner
         kiosk_bcr.next()
 
 def main():
