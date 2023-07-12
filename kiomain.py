@@ -66,10 +66,10 @@ def bcr_callback(**kargv):
 
     if report_URL is None:
         if config['button_panel']:
-            kiosk_leds.pulse(1)
+            kiosk_leds.pulse()
             kioutils.speak_status('{}/error-attn.wav'.format(app_dir),background=False)
             kioutils.speak_status('{}/barcode_invalid{}.wav'.format(app_dir,lang))
-            kiosk_buttons.beep(n=1,background=False)
+            kiosk_buttons.beep(n=2,background=False)
             reset_button_panel()
         logging.error('{} - invalid barcode'.format(kargv['barcode']))
         return
@@ -81,7 +81,7 @@ def bcr_callback(**kargv):
             kiosk_leds.pulse()
             kioutils.speak_status('{}/attn.wav'.format(app_dir),background=False)
             kioutils.speak_status('{}/not_ready{}.wav'.format(app_dir,lang))
-            kiosk_buttons.beep(n=1,background=True)
+            kiosk_buttons.beep(n=1,background=False)
             reset_button_panel()
         logging.info('{} - Testing not finished'.format(kargv['barcode']))
         return
