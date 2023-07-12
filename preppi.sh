@@ -16,6 +16,11 @@ sleep 3
 apt-get --yes install libcups2-dev cups cups-bsd
 cupsctl --remote-admin --remote-any
 usermod -a -G lpadmin pi
+addgroup kiosk
+usermod -a -G kiosk pi
+mkdir /var/log/kiosk
+ln -s /var/log/kiosk/kiosk.log /home/pi/kiosk.log
+chown -R pi:kiosk /var/log/kiosk
 addgroup watchdog
 usermod -a -G watchdog pi
 service cups restart
