@@ -12,6 +12,8 @@ systemctl enable firstboot.service
 timedatectl set-timezone Europe/Riga
 sed -i '/^# Additional overlays.*/a dtoverlay=pi3-disable-wifi\ndtoverlay=pi3-disable-bt' /boot/config.txt
 sed -i '/^\[all\].*/a gpu_mem=16' /boot/config.txt
+sed -i '/^\[global\]$/a break-system-packages = true' /etc/pip.conf
+
 sleep 3
 apt-get --yes install libcups2-dev cups cups-bsd
 cupsctl --remote-admin --remote-any
