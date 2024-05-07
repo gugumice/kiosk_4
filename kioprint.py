@@ -3,7 +3,7 @@ import cups
 import logging
 from time import sleep
 class kioPrinter(cups.Connection):
-    def __init__(self,printers,testpage=True,connection=['usb']) -> None:
+    def __init__(self,printers,testpage=True,connection=['usb','driverless']) -> None:
         super().__init__()
         self.printers=printers
         self.testpage = testpage
