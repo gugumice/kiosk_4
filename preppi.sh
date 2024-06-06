@@ -15,6 +15,7 @@ sed -i '/^\[all\].*/a gpu_mem=16' /boot/config.txt
 apt-get --yes install libcups2-dev cups cups-bsd
 cupsctl --remote-admin --remote-any
 usermod -a -G lpadmin pi
+usermod -a -G lp pi
 addgroup kiosk
 usermod -a -G kiosk pi
 mkdir /var/log/kiosk
